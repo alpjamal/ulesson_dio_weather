@@ -4,7 +4,7 @@ import 'package:ulesson_http/models/weather.dart';
 class WeatherRepo {
   final dio = Dio();
 
-  Future<String> getWeather() async {
+  Future<WeatherResponse> getWeather() async {
     String lat = '51.1043266';
     String lon = '71.1719492';
     String apiKey = '0640c5a69b9a4c9846aa4d66b1000420';
@@ -12,6 +12,6 @@ class WeatherRepo {
 
     final result = await dio.get(url);
     var model = WeatherResponse.fromJson(result.data);
-    return (model.main?.temp ?? '').toString();
+    return model;
   }
 }

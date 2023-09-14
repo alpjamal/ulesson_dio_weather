@@ -14,14 +14,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   bool _isLoading = false;
-  String _temperature = 'No Data';
+  WeatherResponse? weatherResponse;
 
   _getWeather() async {
     setState(() => _isLoading = true);
-
-    String str = await WeatherRepo().getWeather();
-    if (str.isNotEmpty) _temperature = str;
-
+    weatherResponse = await WeatherRepo().getWeather();
     setState(() => _isLoading = false);
   }
 
@@ -35,12 +32,15 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: _isLoading
             ? const CircularProgressIndicator.adaptive()
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(_temperature),
-                ],
-              ),
+            : weatherResponse == null
+                ? const Text('No Data')
+                : Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('${weatherResponse!.main!.temp!.toStringAsFixed(0)} F'),
+                      Text(weatherResponse!.name!),
+                    ],
+                  ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
