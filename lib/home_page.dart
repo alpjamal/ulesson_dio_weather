@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:ulesson_http/models/weather.dart';
+import 'package:ulesson_http/reponsitory/weather_repository.dart';
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -12,20 +13,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  bool _isLoading = false;
   String _temperature = 'No Data';
 
   _getWeather() async {
-    String lat = '51.1043266';
-    String lon = '71.1719492';
-    String apiKey = '0640c5a69b9a4c9846aa4d66b1000420';
-    String url = 'https://api.openweathermap.org/data/2.5/weather?lat=$lat&lon=$lon&appid=$apiKey';
+    setState(() => _isLoading = true);
 
-    Dio dio = Dio();
-    final result = await dio.get(url);
-    var model = WeatherResponse.fromJson(result.data);
+    String str = await WeatherRepo().getWeather();
+    if (str.isNotEmpty) _temperature = str;
 
-    _temperature = '${(model.main?.temp ?? 0).toStringAsFixed(0)} F';
-    setState(() {});
+    setState(() => _isLoading = false);
   }
 
   @override
@@ -36,12 +33,14 @@ class _MyHomePageState extends State<MyHomePage> {
         title: const Text('Weather'),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(_temperature),
-          ],
-        ),
+        child: _isLoading
+            ? const CircularProgressIndicator.adaptive()
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(_temperature),
+                ],
+              ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
